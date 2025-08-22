@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: airfare-backend
+    hostname: airfare-backend
+    build:
+      context: ./airfare_backend
+      target: development
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./airfare_backend/.env
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+    restart: unless-stopped
+
+  frontend:
+    container_name: airfare-frontend
+    build:
+      context: ./airfare_frontend
+      target: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - ./airfare_frontend/.env
+    command: npm run dev
+    restart: unless-stopped
