@@ -88,10 +88,12 @@ EOL
         stage('Push Images to DockerHub') {
             steps {
                 sh """
-                    docker tag airfaredeploy_backend:latest $DOCKER_USER/playsuper_backend:latest
+                    docker tag airfree_playsuper-backend:latest $DOCKER_USER/playsuper_backend:latest
                     docker push $DOCKER_USER/playsuper_backend:latest
-                    docker tag airfaredeploy_frontend:latest $DOCKER_USER/playsuper_frontend:latest
+
+                    docker tag airfree_playsuper-frontend:latest $DOCKER_USER/playsuper_frontend:latest
                     docker push $DOCKER_USER/playsuper_frontend:latest
+
                 """
             }
         }
