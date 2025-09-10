@@ -7,6 +7,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('docker')
         DOCKER_USER = "${DOCKERHUB_CREDENTIALS_USR}"
         DOCKER_PASS = "${DOCKERHUB_CREDENTIALS_PSW}"
+        SONARQUBE_AUTH_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -19,6 +20,31 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/theyounglord-18/PlaySuper_AirFare.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            environment {
+                SCANNER_HOME = tool 'SonarScanner'
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                          -Dsonar.projectKey=PlaySuper_AirFare \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://<jenkins-server-ip>:9000 \
+                          -Dsonar.login=$SONARQUBE_AUTH_TOKEN
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 
@@ -79,22 +105,24 @@ EOL
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                sh 'docker-compose -f docker-compose.yml build --no-cache'
-            }
-        }
-
-        stage('Push Images to DockerHub') {
-            steps {
-                sh """
-                    docker tag airfree_playsuper-backend:latest $DOCKER_USER/playsuper_backend:latest
-                    docker push $DOCKER_USER/playsuper_backend:latest
-
-                    docker tag airfree_playsuper-frontend:latest $DOCKER_USER/playsuper_frontend:latest
-                    docker push $DOCKER_USER/playsuper_frontend:latest
-
-                """
+        stage('Build & Push Images') {
+            parallel {
+                stage('Backend') {
+                    steps {
+                        sh """
+                            docker build -t $DOCKER_USER/playsuper_backend:latest -f Dockerfile.backend .
+                            docker push $DOCKER_USER/playsuper_backend:latest
+                        """
+                    }
+                }
+                stage('Frontend') {
+                    steps {
+                        sh """
+                            docker build -t $DOCKER_USER/playsuper_frontend:latest -f Dockerfile.frontend .
+                            docker push $DOCKER_USER/playsuper_frontend:latest
+                        """
+                    }
+                }
             }
         }
 
