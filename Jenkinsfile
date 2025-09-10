@@ -7,7 +7,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('docker')
         DOCKER_USER = "${DOCKERHUB_CREDENTIALS_USR}"
         DOCKER_PASS = "${DOCKERHUB_CREDENTIALS_PSW}"
-        FRONTEND_ENV = credentials('frontend-env')
+        
     }
 
     stages {
@@ -18,7 +18,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/MANIRUTHVIK/AirfareDeploy.git'
+                git branch: 'main', url: 'https://github.com/theyounglord-18/PlaySuper_AirFare.git'
             }
         }
  stage('Prepare Backend .env') {
@@ -53,7 +53,7 @@ stage('Prepare Frontend .env') {
         sh '''
         mkdir -p airfare_frontend
         cat > airfare_frontend/.env <<EOL
-NEXT_PUBLIC_BACKEND_API=http://51.20.77.166:5000
+NEXT_PUBLIC_BACKEND_API=http://35.239.183.144:5000
 NODE_ENV=development
 EOL
         '''
