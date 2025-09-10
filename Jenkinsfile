@@ -24,21 +24,18 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            environment {
-                SCANNER_HOME = tool 'SonarScanner'
-            }
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        ${SCANNER_HOME}/bin/sonar-scanner \
-                          -Dsonar.projectKey=PlaySuper_AirFare \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=http://<jenkins-server-ip>:9000 \
-                          -Dsonar.login=$SONARQUBE_AUTH_TOKEN
-                    '''
-                }
-            }
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh """
+                sonar-scanner \
+                -Dsonar.projectKey=PlaySuper_AirFare \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=http://104.154.214.199:9000 \
+                -Dsonar.login=sonar-token
+            """
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
