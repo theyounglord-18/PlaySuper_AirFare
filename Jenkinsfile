@@ -54,7 +54,7 @@ EOL
                 sh '''
                 mkdir -p airfare_frontend
                 cat > airfare_frontend/.env <<EOL
-NEXT_PUBLIC_BACKEND_API=http://35.239.183.144:5000
+NEXT_PUBLIC_BACKEND_API=http://104.154.214.199:5000
 NODE_ENV=development
 EOL
                 '''
