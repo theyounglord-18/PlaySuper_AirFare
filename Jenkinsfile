@@ -92,33 +92,33 @@ EOL
                 sh '''
                     docker rm -f airfare-backend || true
                     docker rm -f airfare-frontend || true
-                    docker rm -f airfare-network || true
                     docker rmi -f $DOCKER_USER/playsuper_backend:latest || true
                     docker rmi -f $DOCKER_USER/playsuper_frontend:latest || true
                 '''
             }
         }
 
-        stage('Build & Push Images') {
-            parallel {
-                stage('Backend') {
-                    steps {
-                        sh """
-                            docker build -t $DOCKER_USER/playsuper_backend:latest -f Dockerfile.backend .
-                            docker push $DOCKER_USER/playsuper_backend:latest
-                        """
-                    }
-                }
-                stage('Frontend') {
-                    steps {
-                        sh """
-                            docker build -t $DOCKER_USER/playsuper_frontend:latest -f Dockerfile.frontend .
-                            docker push $DOCKER_USER/playsuper_frontend:latest
-                        """
-                    }
-                }
+        stage('Push Images to DockerHub') {
+    parallel {
+        stage('Push Backend') {
+            steps {
+                sh """
+                    docker tag airfree_playsuper-backend:latest $DOCKER_USER/playsuper_backend:latest
+                    docker push $DOCKER_USER/playsuper_backend:latest
+                """
             }
         }
+        stage('Push Frontend') {
+            steps {
+                sh """
+                    docker tag airfree_playsuper-frontend:latest $DOCKER_USER/playsuper_frontend:latest
+                    docker push $DOCKER_USER/playsuper_frontend:latest
+                """
+            }
+        }
+    }
+}
+
 
         stage('Deploy with Docker Compose') {
             steps {
