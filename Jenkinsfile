@@ -24,18 +24,22 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh """
-                sonar-scanner \
-                -Dsonar.projectKey=PlaySuper_AirFare \
-                -Dsonar.sources=. \
-                -Dsonar.host.url=http://104.154.214.199:9000 \
-                -Dsonar.login=sonar-token
-            """
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    script {
+                        
+                        def scannerHome = tool 'SonarScanner'
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=PlaySuper_AirFare \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://104.154.214.199:9000 \
+                            -Dsonar.login=${SONARQUBE_AUTH_TOKEN}
+                        """
+                    }
+                }
+            }
         }
-    }
-}
 
         stage('Quality Gate') {
             steps {
