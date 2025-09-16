@@ -27,7 +27,6 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     script {
-                        
                         def scannerHome = tool 'SonarScanner'
                         sh """
                             ${scannerHome}/bin/sonar-scanner \
@@ -41,7 +40,6 @@ pipeline {
             }
         }
 
-       
         stage('Prepare Backend .env') {
             steps {
                 withCredentials([
@@ -87,43 +85,19 @@ EOL
             }
         }
 
-        stage('Remove Old Containers & Images') {
+        stage('Build & Push with Docker Compose') {
             steps {
                 sh '''
-                    docker rm -f airfare-backend || true
-                    docker rm -f airfare-frontend || true
-                    docker rmi -f $DOCKER_USER/playsuper_backend:latest || true
-                    docker rmi -f $DOCKER_USER/playsuper_frontend:latest || true
+                    docker-compose -f docker-compose.yml down -v || true
+                    docker-compose -f docker-compose.yml build
+                    docker-compose -f docker-compose.yml push
                 '''
             }
         }
 
-        stage('Push Images to DockerHub') {
-    parallel {
-        stage('Push Backend') {
-            steps {
-                sh """
-                    docker tag airfree_playsuper-backend:latest $DOCKER_USER/playsuper_backend:latest
-                    docker push $DOCKER_USER/playsuper_backend:latest
-                """
-            }
-        }
-        stage('Push Frontend') {
-            steps {
-                sh """
-                    docker tag airfree_playsuper-frontend:latest $DOCKER_USER/playsuper_frontend:latest
-                    docker push $DOCKER_USER/playsuper_frontend:latest
-                """
-            }
-        }
-    }
-}
-
-
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
-                    docker-compose -f docker-compose.yml down -v || true
                     docker-compose -f docker-compose.yml up -d
                 '''
             }
