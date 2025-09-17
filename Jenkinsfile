@@ -23,19 +23,21 @@ pipeline {
             }
         }
 
-      stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQubeServer') {  // <-- match exactly the configured name
-            sh '''
-                ./gradlew sonarqube \
-                -Dsonar.projectKey=my-project \
-                -Dsonar.host.url=http://104.154.214.199:9000 \
-                -Dsonar.login=$SONARQUBE_AUTH_TOKEN
-            '''
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=my-project \
+                          -Dsonar.sources=. \
+                          -Dsonar.language=ts \
+                          -Dsonar.host.url=http://104.154.214.199:9000 \
+                          -Dsonar.login=$SONARQUBE_AUTH_TOKEN \
+                          -Dsonar.exclusions=**/node_modules/**,**/dist/**,.next/**
+                    '''
+                }
+            }
         }
-    }
-}
-
 
         stage('Prepare Backend .env') {
             steps {
