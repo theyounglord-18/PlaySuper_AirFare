@@ -29,7 +29,7 @@ pipeline {
             sh '''
                 ./gradlew sonarqube \
                 -Dsonar.projectKey=my-project \
-                -Dsonar.host.url=http://<your-sonar-host>:9000 \
+                -Dsonar.host.url=http://104.154.214.199:9000 \
                 -Dsonar.login=$SONARQUBE_AUTH_TOKEN
             '''
         }
