@@ -23,23 +23,19 @@ pipeline {
             }
         }
 
-       stage('SonarQube Analysis') {
+      stage('SonarQube Analysis') {
     steps {
-        withSonarQubeEnv('SonarQube') { 
-            script {
-               
-                def scannerHome = tool 'SonarScanner'  
-                sh """
-                    ${scannerHome}/bin/sonar-scanner \
-                      -Dsonar.projectKey=PlaySuper_AirFare \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=$SONAR_HOST_URL \
-                      -Dsonar.login=$SONAR_AUTH_TOKEN
-                """
-            }
+        withSonarQubeEnv('SonarQubeServer') {  // <-- match exactly the configured name
+            sh '''
+                ./gradlew sonarqube \
+                -Dsonar.projectKey=my-project \
+                -Dsonar.host.url=http://<your-sonar-host>:9000 \
+                -Dsonar.login=$SONARQUBE_AUTH_TOKEN
+            '''
         }
     }
 }
+
 
         stage('Prepare Backend .env') {
             steps {
