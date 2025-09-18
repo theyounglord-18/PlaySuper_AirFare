@@ -31,6 +31,8 @@
 $ npm install
 ```
 
+This Project Can be replicated in the GCP environment also.
+
 ## Compile and run the project
 
 ```bash
